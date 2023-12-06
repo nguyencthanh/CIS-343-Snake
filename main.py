@@ -47,6 +47,44 @@ class Fruit:
         self.y = random.randint(0, 19)
         self.position = Vector2(self.x, self.y)
 
+# Powerups
+# Powerups for the player to give them an edge.
+# Power-up Class
+class PowerUp:
+    def __init__(self, snake):
+        self.powerup_icon = game.image.load(os.path.join('Assets', 'Graphics/powerup.png')).convert_alpha()
+        self.snake = snake
+        self.x = random.randint(0, 19)
+        self.y = random.randint(0, 19)
+        self.position = Vector2(self.x, self.y)
+
+    @property
+    def x_pos(self):
+        return self.x
+
+    @x_pos.setter
+    def x_pos(self, x_pos):
+        self.x = x_pos
+
+    @property
+    def y_pos(self):
+        return self.y
+
+    @y_pos.setter
+    def y_pos(self, y_pos):
+        self.y = y_pos
+
+    def draw_powerup(self):
+        powerup_rectangle = game.Rect(int(self.position.x * 40), int(self.position.y * 40), 40, 40)
+        screen.blit(self.powerup_icon, powerup_rectangle)
+
+    def move_powerup(self):
+        self.x = random.randint(0, 19)
+        self.y = random.randint(0, 19)
+        self.position = Vector2(self.x, self.y)
+        for _ in range(2):
+            self.snake.add_body()
+
 
 # The Player
 class Snake:
@@ -202,21 +240,30 @@ class Main:
         self.snake = Snake()
         self.fruit = Fruit()
         self.scoreboard = Scoreboard()
+        self.powerup = PowerUp(self.snake)
 
     def update(self):
         self.snake.move()
         self.fruit_collision()
         self.snake_collision()
+        self.powerup_collision()
 
     def draw_element(self):
         self.fruit.draw_fruit()
         self.snake.draw_snake()
         self.display_score()
+        self.powerup.draw_powerup()
 
     def fruit_collision(self):
         if self.fruit.position == self.snake.body[0]:
             self.fruit.move_fruit()
             self.snake.add_body()
+        elif self.powerup.position == self.snake.body[0]:
+            self.powerup.move_powerup()
+            
+    def powerup_collision(self):
+        if self.powerup.position == self.snake.body[0]:
+            self.powerup.move_powerup()
 
     def snake_collision(self):
         if not 0 <= self.snake.body[0].x < 20 or not 0 <= self.snake.body[0].y < 20:
